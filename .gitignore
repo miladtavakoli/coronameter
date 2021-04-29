@@ -1,1 +1,4 @@
 /.venv/
+/file.log
+/geckodriver
+/geckodriver.log
