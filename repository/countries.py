@@ -16,10 +16,8 @@ class CountriesRepository(BaseDB):
         res = list(self.collection.find(query, {"_id": "$country"}))
         return [CountryDomain.from_dict(r) for r in res]
 
-    def update_one(self, find_query: dict, set_: dict, set_on_insert: dict, upsert=True):
-        return self.collection.update(find_query,
-                                      {"$set": set_, "$setOnInsert": set_on_insert},
-                                      upsert)
+    def update_one(self, find_query: dict, set_: dict, upsert=True):
+        return self.collection.update(find_query, {"$set": set_}, upsert)
 
     def insert_one(self, insert_doc: dict):
         return self.collection.insert_one(insert_doc)

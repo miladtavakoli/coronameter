@@ -27,8 +27,8 @@ class BaseDB(MongoConnection):
 
 
 class DailyRepoBase(BaseDB):
-
     collection = None
+    field_name = None
 
     def insert_many(self, items):
         return self.collection.insert_many(items)
@@ -37,7 +37,6 @@ class DailyRepoBase(BaseDB):
         return self.collection.insert_one(item)
 
     def update_one_value(self, _id, new_value):
-        # {"value": new_value, "updated_at": datetime.now()
         return self.collection.update_one({"_id": _id}, {"$set": new_value})
 
     def total_value_by(self, country):
@@ -46,7 +45,7 @@ class DailyRepoBase(BaseDB):
             {
                 "$group": {
                     "_id": {"country": country},
-                    "total_value": {"$sum": "$value"},
+                    "total_value": {"$sum": f"${self.field_name}"},
                     "last_value": {"$last": "$reported_at"}
                 }
             },

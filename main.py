@@ -1,7 +1,12 @@
+from crawl.crawl_daily_table import CrawlWorldMeter
 from domain.country_domain import CountryDomain
 from repository.countries import CountriesRepository
+from repository.death_daily import DeathReportRepository
 from repository.log_repo import CrawlerLogRepository
+from repository.newcase_daily import CaseReportRepository
+from repository.statics_daily_log import StaticsRepository
 from use_case import country_usecase, log, main_crawler
+from use_case.main_crawler import UpdateLatestStaticsUseCase
 
 
 def list_log():
@@ -10,12 +15,24 @@ def list_log():
     return res
 
 
-def update_daily_report():
-    use_case = main_crawler.UpdateDailyUseCase()
-    return use_case.execute()
+def update_report_now_table(yesterday: bool = False):
+    use_case = UpdateLatestStaticsUseCase(crawler=CrawlWorldMeter(),
+                                          log_repo=CrawlerLogRepository(),
+                                          statics_repo=StaticsRepository(),
+                                          countries_repo=CountriesRepository(),
+                                          new_case_repo=CaseReportRepository(),
+                                          death_repo=DeathReportRepository(),
+                                          )
+    return use_case.execute(yesterday=yesterday)
 
 
-def crawl_history_statics():
+def update_report_yesterday_table():
+    # use_case = main_crawler.UpdateYesterdayStaticsUseCase()
+    # return use_case.execute()
+    pass
+
+
+def save_history_statics():
     use_case = main_crawler.CrawlHistoryGraph()
     return use_case.execute()
 
@@ -26,6 +43,5 @@ def country_list():
 
 
 if __name__ == '__main__':
-    r = country_list()
+    r = update_report_now_table(yesterday=False)
     print(r)
-    print("I LOVE MYSelf")

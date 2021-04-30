@@ -13,6 +13,7 @@ class CountryDomain(object):
         self.flag = flag
         self.created_at = created_at
         self.updated_at = updated_at
+        self._validate_input()
 
     @classmethod
     def from_dict(cls, input_dict):
@@ -46,3 +47,10 @@ class CountryDomain(object):
     @classmethod
     def to_list_dict(cls, input_list):
         return [CountryDomain.to_dict(res) for res in input_list]
+
+    def _validate_input(self):
+        if self.created_at is None:
+            self.created_at = datetime.now()
+
+        if self.updated_at is None:
+            self.updated_at = datetime.now()
