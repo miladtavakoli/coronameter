@@ -180,7 +180,7 @@ class UpdateDailiesReport(SaveLoggerUseCase):
         last_c_d = self.new_case_repo.get_last_report(country_report.country)
         new_case_cr = NewCaseDomain.from_dict(country_report.to_dict())
         new_case_cr.reported_at = new_case_cr.created_at
-        print("nc", new_case_cr.country, new_case_cr.reported_at, new_case_cr.created_at)
+        logger.debug(new_case_cr.country, new_case_cr.reported_at, new_case_cr.created_at)
         if last_c_d is not None and len(last_c_d) > 0:
             last_c_d = NewCaseDomain.from_dict(last_c_d[0])
 
@@ -195,7 +195,7 @@ class UpdateDailiesReport(SaveLoggerUseCase):
         last_d_d = self.death_repo.get_last_report(country_report.country)
         new_death_cr = NewDeathDomain.from_dict(country_report.to_dict())
         new_death_cr.reported_at = new_death_cr.created_at
-        print(new_death_cr.country, new_death_cr.reported_at, new_death_cr.created_at)
+        logger.debug(new_death_cr.country, new_death_cr.reported_at, new_death_cr.created_at)
 
         if last_d_d is not None and len(last_d_d) > 0:
             last_d_d = NewDeathDomain.from_dict(last_d_d[0])
