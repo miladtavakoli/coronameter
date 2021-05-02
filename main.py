@@ -6,6 +6,7 @@ from repository.log_repo import CrawlerLogRepository
 from repository.newcase_daily import CaseReportRepository
 from repository.statics_daily_log import StaticsRepository
 from use_case import country_usecase, log, main_crawler
+from use_case.draw_graph import CreateCountryStaticsPlotUseCase, CreateComparisonPlotUseCase
 from use_case.main_crawler import UpdateLatestStaticsUseCase
 
 
@@ -42,6 +43,26 @@ def country_list():
     return list(use_case.execute())
 
 
+def get_country_data_days_ago(country, how_many_days_ago):
+    use_case = CreateCountryStaticsPlotUseCase(new_case_repo=CaseReportRepository(), death_repo=DeathReportRepository())
+    return use_case.execute(country, how_many_days_ago)
+
+
+def get_comparison(first_country: str, second_country: str, how_many_days_ago: int):
+    """
+        Comparison of statistics between the two countries in terms of population
+        :param first_country: name of country
+        :param second_country: name of another country
+        :param how_many_days_ago: integer
+        :return: plot.show()
+    """
+    use_case = CreateComparisonPlotUseCase(country_repo=CountriesRepository(),
+                                           new_case_repo=CaseReportRepository(),
+                                           death_repo=DeathReportRepository())
+    return use_case.execute(first_country, second_country, how_many_days_ago)
+
+
 if __name__ == '__main__':
-    r = update_report_now_table(yesterday=False)
+    # r = get_comparison("iran", "usa", how_many_days_ago=50)
+    r = update_report_now_table()
     print(r)

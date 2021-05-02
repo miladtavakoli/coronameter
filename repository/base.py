@@ -29,6 +29,7 @@ class BaseDB(MongoConnection):
 class DailyRepoBase(BaseDB):
     collection = None
     field_name = None
+    population_per_million = 1_000_000
 
     def insert_many(self, items):
         return self.collection.insert_many(items)
@@ -58,3 +59,8 @@ class DailyRepoBase(BaseDB):
             {"$limit": 1}
         ])
         return list(res)
+
+    def get_country_days_ago(self, country, from_day):
+        res = self.collection.find({"country": country, "reported_at": {"$gte": from_day}})
+        return list(res)
+
