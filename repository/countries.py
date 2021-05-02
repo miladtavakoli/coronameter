@@ -21,3 +21,6 @@ class CountriesRepository(BaseDB):
 
     def insert_one(self, insert_doc: dict):
         return self.collection.insert_one(insert_doc)
+
+    def find_countries(self, countries):
+        return list(self.collection.find({"country": {"$in": countries}}))
