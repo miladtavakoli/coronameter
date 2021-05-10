@@ -12,7 +12,7 @@ from repository.death_daily import DeathReportRepository
 from repository.log_repo import CrawlerLogRepository
 from repository.newcase_daily import CaseReportRepository
 from repository.statics_daily_log import StaticsRepository
-from tools import is_same_date
+from use_case.tools import is_same_date
 
 
 class CrawlHistoryGraph:
