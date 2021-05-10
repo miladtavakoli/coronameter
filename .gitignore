@@ -3,3 +3,4 @@
 /geckodriver
 /geckodriver.log
 /graph/
+/.env
