@@ -1,10 +1,8 @@
-from datetime import datetime, timedelta
-
+import numpy as np
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.dates import date2num
 
+from datetime import datetime, timedelta
 from domain.country_domain import CountryDomain
 from domain.newcases_domain import NewCaseDomain
 from domain.newdeaths_domain import NewDeathDomain
@@ -30,12 +28,13 @@ class CreateCountryStaticsPlotUseCase:
 
     @staticmethod
     def _convert_datetime(from_days: int):
+        print(from_days)
         n = datetime.now() - timedelta(days=from_days)
         return datetime(n.year, n.month, n.day, 00, 00)
 
     @staticmethod
-    def _draw_graph(dates_death, deaths, dates_new_case, new_cases, graph_title):
-        figure, axis = plt.subplots(2, constrained_layout=True)
+    def _draw_graph(dates_death, deaths, dates_new_case, new_cases, graph_title, file_name):
+        fig, axis = plt.subplots(2, constrained_layout=True)
         axis[0].set_title(graph_title, pad=20)
         axis[0].tick_params(labelrotation=90, gridOn=True)
         axis[1].tick_params(labelrotation=90, gridOn=True)
@@ -48,6 +47,8 @@ class CreateCountryStaticsPlotUseCase:
         axis[0].set_ylabel("DEATH")
         axis[1].set_ylabel("NEW CASE")
         axis[0].set_xlabel("DATE")
+        fig.set_size_inches(18.5, 10.5)
+        fig.savefig(f'./graph/{file_name}.png', dpi=100)
 
     def execute(self, country, from_days):
         dates_new_case, new_cases, deaths, dates_death = [], [], [], []
@@ -69,8 +70,9 @@ class CreateCountryStaticsPlotUseCase:
                 deaths.append(rd.new_deaths)
 
         graph_title = f'{country.title()} - {from_days} days ago'
-        self._convert_datetime(dates_death, deaths, dates_new_case, new_cases, graph_title)
-        plt.show()
+        file_name = f'{datetime.now().date()}_{country.lower()}'
+        self._draw_graph(dates_death, deaths, dates_new_case, new_cases, graph_title, file_name)
+        # plt.show()
 
 
 class CreateComparisonPlotUseCase:
@@ -92,7 +94,7 @@ class CreateComparisonPlotUseCase:
 
     def _list_of_country_name(self, first_country, second_country):
         res = self.country_repo.find_countries([first_country, second_country])
-        if len(res) < 2:
+        if len(res) != 2:
             raise ValueError("There is no data for one or two countries.")
         countries = CountryDomain.from_list_dict(res)
         self.list_of_countries = [c.country for c in countries]
@@ -123,9 +125,8 @@ class CreateComparisonPlotUseCase:
             r1[int_d] = first_static[int_d]
             r2[int_d] = sec_static[int_d]
 
-        if len(r1) == 0 or len(r2) ==0 :
-            raise ValueError("There is no data for one or two countries.")
-
+        if len(r1) == 0 or len(r2) == 0:
+            raise ValueError("There is not enough data for one or two countries.")
         return {self.list_of_countries[0]: r1, self.list_of_countries[1]: r2}
 
     @staticmethod
@@ -138,36 +139,44 @@ class CreateComparisonPlotUseCase:
         axis[1].tick_params(labelrotation=90, gridOn=True)
 
         if dates_death is not None or first_death is not None or sec_death is not None:
-            ind = np.arange(len(dates_death))
-            width = 0.35
-            axis[0].bar(ind - width / 2, first_death, width,
-                        color=mcolors.CSS4_COLORS.get("salmon"), edgecolor=mcolors.CSS4_COLORS.get("darkred"),
-                        label=list_of_country[0])
-            axis[0].bar(ind + width / 2, sec_death, width,
-                        color=mcolors.CSS4_COLORS.get("maroon"), edgecolor=mcolors.CSS4_COLORS.get("darkred"),
-                        label=list_of_country[1])
-            axis[0].set_xticks(ind)
-            axis[0].set_xticklabels(dates_death)
-            axis[0].legend()
+            try:
+                ind = np.arange(len(dates_death))
+                width = 0.35
+                axis[0].bar(ind - width / 2, first_death, width,
+                            color=mcolors.CSS4_COLORS.get("salmon"), edgecolor=mcolors.CSS4_COLORS.get("darkred"),
+                            label=list_of_country[0])
+                axis[0].bar(ind + width / 2, sec_death, width,
+                            color=mcolors.CSS4_COLORS.get("maroon"), edgecolor=mcolors.CSS4_COLORS.get("darkred"),
+                            label=list_of_country[1])
+                axis[0].set_xticks(ind)
+                axis[0].set_xticklabels(dates_death)
+                axis[0].legend()
+            except ValueError as e:
+                raise e
 
         if dates_new_case is not None or first_new_case is not None or sec_new_case is not None:
-            ind = np.arange(len(dates_death))
-            width = 0.35
-            axis[1].bar(ind - width / 2, first_new_case, width,
-                        color=mcolors.CSS4_COLORS.get("moccasin"), edgecolor=mcolors.CSS4_COLORS.get("darkgoldenrod"),
-                        label=list_of_country[0])
-            axis[1].bar(ind + width / 2, sec_new_case, width,
-                        color=mcolors.CSS4_COLORS.get("goldenrod"), edgecolor=mcolors.CSS4_COLORS.get("darkgoldenrod"),
-                        label=list_of_country[1])
-            axis[1].set_xticks(ind)
-            axis[1].set_xticklabels(dates_death)
-            axis[1].legend()
+            try:
+                ind = np.arange(len(dates_new_case))
+                width = 0.35
+                axis[1].bar(ind - width / 2, first_new_case, width,
+                            color=mcolors.CSS4_COLORS.get("moccasin"),
+                            edgecolor=mcolors.CSS4_COLORS.get("darkgoldenrod"),
+                            label=list_of_country[0])
+                axis[1].bar(ind + width / 2, sec_new_case, width,
+                            color=mcolors.CSS4_COLORS.get("goldenrod"),
+                            edgecolor=mcolors.CSS4_COLORS.get("darkgoldenrod"),
+                            label=list_of_country[1])
+                axis[1].set_xticks(ind)
+                axis[1].set_xticklabels(dates_new_case)
+                axis[1].legend()
+            except ValueError as e:
+                raise e
 
         axis[0].set_ylabel("DEATH")
         axis[1].set_ylabel("NEW CASE")
         axis[1].set_xlabel("DATE")
         fig.set_size_inches(18.5, 10.5)
-        fig.savefig(f'./graph/{"-".join(list_of_country)}.png', dpi=100)
+        fig.savefig(f'./graph/{datetime.now().date()}_{"-".join(list_of_country)}.png', dpi=100)
 
     def _separate_data(self, statics):
         s1 = statics[self.list_of_countries[0]]
@@ -179,22 +188,31 @@ class CreateComparisonPlotUseCase:
 
     def execute(self, first_country, second_country, from_days):
         d_from_days = self._convert_datetime(from_days)
-        self._list_of_country_name(first_country, second_country)
+        try:
+            self._list_of_country_name(first_country, second_country)
+        except ValueError as e:
+            return f"!!! -> {e}"
         cases = self.new_case_repo.new_case_per_population([first_country, second_country], d_from_days)
         death = self.death_repo.death_per_population([first_country, second_country], d_from_days)
 
-        grouped_cases = self.intersection_values(self._group_statics_by_country(cases))
-        grouped_death = self.intersection_values(self._group_statics_by_country(death))
+        try:
+            grouped_cases = self.intersection_values(self._group_statics_by_country(cases))
+            grouped_death = self.intersection_values(self._group_statics_by_country(death))
+        except ValueError as e:
+            return f"!!! -> {e}"
 
         dates_death, first_death, sec_death = self._separate_data(grouped_death)
         dates_new_case, first_new_case, sec_new_case = self._separate_data(grouped_cases)
         graph_title = f"compare of countries : {' - '.join(self.list_of_countries).title()}" \
                       f" from {from_days} days ago"
 
-        self._draw_graph(
-            dates_death, first_death, sec_death,
-            dates_new_case, first_new_case, sec_new_case,
-            graph_title= graph_title,
-            list_of_country=self.list_of_countries
-        )
-        plt.show()
+        try:
+            self._draw_graph(
+                dates_death, first_death, sec_death,
+                dates_new_case, first_new_case, sec_new_case,
+                graph_title=graph_title,
+                list_of_country=self.list_of_countries
+            )
+        except ValueError as e:
+            return f"!!! -> {e}"
+        # plt.show()
