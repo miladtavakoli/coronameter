@@ -5,8 +5,8 @@ logger = logging.getLogger(__name__)
 
 # Create handlers
 c_handler = logging.StreamHandler()
-f_handler = logging.FileHandler('file.log')
-c_handler.setLevel(logging.NOTSET)
+f_handler = logging.FileHandler('log_file.log')
+c_handler.setLevel(logging.DEBUG)
 f_handler.setLevel(logging.CRITICAL)
 
 # Create formatters and add it to handlers
