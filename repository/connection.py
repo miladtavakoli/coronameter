@@ -1,6 +1,8 @@
+import config
+
 from pymongo import MongoClient
 
 
 class MongoConnection:
-    connection = MongoClient('mongodb://localhost:27017/')
-    db = connection['worldometers']
+    connection = config.DATABASE_CONFIG['url']
+    db = config.DATABASE_CONFIG['db_name']
