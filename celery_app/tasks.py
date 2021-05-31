@@ -3,7 +3,7 @@ from repository.death_daily import DeathReportRepository
 from repository.newcase_daily import CaseReportRepository
 from .celery import app
 from .tools import _rebuild_item
-
+from corona_meter_logger import logger
 
 @app.task
 def crawl_data(country, link):
@@ -11,7 +11,7 @@ def crawl_data(country, link):
     death_repo = DeathReportRepository()
     crawl_daily_graph = CrawlDailyStatics(link)
     result = crawl_daily_graph.execute()
-    print(country)
+    logger.debug(f"country : {country}")
     # check cases statistics and save
     if result.death_daily is not None and len(result.death_daily) > 0:
         items = [_rebuild_item(item, country) for item in result.death_daily]
