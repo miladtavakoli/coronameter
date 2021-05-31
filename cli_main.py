@@ -1,4 +1,6 @@
 #!.venv/bin/python
+import os
+
 import click
 from crawl.crawl_daily_table import CrawlWorldMeter
 from domain.country_domain import CountryDomain
@@ -7,10 +9,10 @@ from repository.death_daily import DeathReportRepository
 from repository.log_repo import CrawlerLogRepository
 from repository.newcase_daily import CaseReportRepository
 from repository.statics_daily_log import StaticsRepository
-from use_case import country_usecase, log, main_crawler
+from use_case import country_usecase, log, main_crawler,celery_crawler
 from use_case.draw_graph import CreateCountryStaticsPlotUseCase, CreateComparisonPlotUseCase
 from use_case.main_crawler import UpdateLatestStaticsUseCase
-
+from celery_app.celery import app as celery_app_instance
 
 @click.group()
 def main():
@@ -70,12 +72,26 @@ def update_yesterday():
 
 
 @main.command()
-def save_history_statics():
+def save_history():
     """
     crawl countries graph. save
     :return:
     """
     use_case = main_crawler.CrawlHistoryGraph()
+    return use_case.execute()
+
+
+@main.command()
+def celery_save_history():
+    """
+    run celery.
+    crawl countries graph. save
+    :return:
+    """
+
+    worker = celery_app_instance.Worker()
+    worker.start()
+    use_case = celery_crawler.CeleryCrawlWorldMeterUseCase(CrawlWorldMeter)
     return use_case.execute()
 
 

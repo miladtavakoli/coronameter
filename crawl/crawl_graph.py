@@ -1,16 +1,28 @@
 import collections
+import time
 
+from selenium.common.exceptions import WebDriverException
 from selenium import webdriver
 
 
 class CrawlDailyStatics:
     def __init__(self, link):
-        self.max_retries = 10
+        self.max_retries = 5
         self.url = f"https://www.worldometers.info/coronavirus/{link}"
         options = webdriver.FirefoxOptions()
         options.add_argument("--disable-blink-features=AutomationControlled")
         self.driver = webdriver.Firefox(options=options, executable_path="./geckodriver")
-        self.driver.get(self.url)
+
+    def get_data(self):
+        c = 1
+        while c < self.max_retries:
+            try:
+                return self.driver.get(self.url)
+            except WebDriverException:
+                time.sleep(2)
+                c += 1
+                continue
+        return False
 
     def _get_charts_name(self):
         js_command = "charts=[];Highcharts.charts.forEach(element => charts.push(element.renderTo['id']));" \
@@ -53,6 +65,10 @@ class CrawlDailyStatics:
             return None
 
     def execute(self):
+        if self.get_data() is False:
+            self.driver.close()
+            raise ValueError(f"Load{self.url} is failed")
+
         charts_name = self._get_charts_name()
         death_daily_index = self._get_index_death_daily(charts_name)
         case_daily_index = self._get_index_case_daily(charts_name)
