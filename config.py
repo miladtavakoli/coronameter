@@ -11,3 +11,8 @@ CELERY_CONFIG = {
     "broker": os.getenv("BROKER"),
     "backend": os.getenv("BACKEND")
 }
+
+CRAWLER_CONFIG = {
+    "MAX_RETRY": os.getenv("CRAWLER_MAX_RETRY"),
+    "SLEEP_TIME": os.getenv("CRAWLER_MAX_TRY")
+}

@@ -15,7 +15,7 @@ class StaticsDomain(object):
         self.population = population
         self.created_at = created_at
         self.updated_at = updated_at
-        self._validate_input()
+        self._set_default_datetime()
 
     @classmethod
     def from_dict(cls, input_dict):
@@ -46,15 +46,15 @@ class StaticsDomain(object):
 
     @classmethod
     def from_list_dict(cls, input_list):
-        # list of dicts to list of objects
+        """Converts list of dicts to list of objects"""
         return [StaticsDomain.from_dict(res) for res in input_list]
 
     @classmethod
     def to_list_dict(cls, input_list):
-        # list of objects to list of dicts
+        """Converts list of objects to list of dicts"""
         return [StaticsDomain.to_dict(res) for res in input_list]
 
-    def _validate_input(self):
+    def _set_default_datetime(self):
         if self.created_at is None:
             self.created_at = datetime.now()
 

@@ -29,7 +29,8 @@ class CrawlWorldMeterTools:
             result = [elem.text for elem in elements]
         return result
 
-    def _unify_header(self, txt):
+    def _unify_header(self, txt: str) -> str:
+        # return unify header row of table
         txt = txt.lower()
         replace_cond = {
             "\n": "_",
@@ -43,7 +44,7 @@ class CrawlWorldMeterTools:
             "active": "active_",
             "__": "_",
         }
-        txt = self._replace(txt, replace_cond)
+        txt = self._replace_many(txt, replace_cond)
         txt = txt.replace("_", "", -1) if txt.endswith("_") else txt
         txt = txt.replace("_", "", 1) if txt.startswith("_") else txt
         txt = txt.replace("1", "one", 1) if txt.startswith("1") else txt
@@ -51,6 +52,7 @@ class CrawlWorldMeterTools:
         return txt
 
     def _unify_body(self, txt):
+        # return unify body rows of table
         txt = txt.lower()
         replace_cond = {
             "\n": " ",
@@ -58,7 +60,7 @@ class CrawlWorldMeterTools:
             " ": "_",
             "__": "_"
         }
-        txt = self._replace(txt, replace_cond)
+        txt = self._replace_many(txt, replace_cond)
         txt = txt.replace("_", "", -1) if txt.endswith("_") else txt
         txt = txt.replace("_", "", 1) if txt.startswith("_") else txt
         txt = txt.replace("+", "", 1) if txt.startswith("+") else txt
@@ -66,18 +68,20 @@ class CrawlWorldMeterTools:
         return txt
 
     @staticmethod
-    def _replace(txt, replace_cond):
+    def _replace_many(txt, replace_cond: dict) -> str:
         for old, new in replace_cond.items():
             txt = txt.replace(old, new)
         return txt
 
     def _find_table_by(self, url, table_id: str):
+        # each table has unique id. find table with id.
         web_txt = self._get_data(url)
         soup = BeautifulSoup(web_txt.text, "html.parser")
         return soup.find(attrs={"id": table_id})
 
     @staticmethod
     def _find_country_link(tr):
+        # second col is country name with link
         td = tr.find_all('td')
         if td[1].a is not None:
             return td[1].a.attrs['href']
@@ -86,11 +90,17 @@ class CrawlWorldMeterTools:
 
 class CrawlWorldMeter(CrawlWorldMeterTools):
     def __init__(self):
+        # Base URL
         self.url = "https://www.worldometers.info/coronavirus/"
 
-        # some country entered table is not country :D
-        self.skip_list = ["northamerica", "asia", "southamerica", "europe", "africa", "oceania", "world", ""]
-        self.continent = ["Europe", "North America", "Asia", "South America", "Africa", "Oceania"]
+        # some country entered in table is not country
+        self.skip_list = ("northamerica", "asia", "southamerica", "europe", "africa", "oceania", "world", "")
+
+        # Continent skip
+        self.continent = ("Europe", "North America", "Asia", "South America", "Africa", "Oceania")
+
+    def _is_country_name_in_skip_list(self, country_name):
+        return country_name in self.skip_list
 
     def _aggregation_table_result(self, table):
         headers = self._get_thead(table)
@@ -99,10 +109,9 @@ class CrawlWorldMeter(CrawlWorldMeterTools):
         result = []
         for tr in trows:
             td = self._get_tds_in(tr)
-            if td[0] in self.skip_list:
-                continue
-            td.append(self._find_country_link(tr))
-            result.append(dict(zip(headers, td)))
+            if not self._is_country_name_in_skip_list(country_name=td[0]):
+                td.append(self._find_country_link(tr))
+                result.append(dict(zip(headers, td)))
         return result
 
     def crawl_last_update(self):

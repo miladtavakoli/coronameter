@@ -13,7 +13,7 @@ class NewCaseDomain(object):
         self.reported_at = reported_at
         self.created_at = created_at
         self.updated_at = updated_at
-        self._validate_input()
+        self._set_default_datetime()
 
     @classmethod
     def from_dict(cls, input_dict):
@@ -40,15 +40,15 @@ class NewCaseDomain(object):
 
     @classmethod
     def from_list_dict(cls, input_list):
-        # list of dicts to list of objects
+        """Converts list of dicts to list of objects"""
         return [NewCaseDomain.from_dict(res) for res in input_list]
 
     @classmethod
     def to_list_dict(cls, input_list):
-        # list of objects to list of dicts
+        """Converts list of objects to list of dicts"""
         return [NewCaseDomain.to_dict(res) for res in input_list]
 
-    def _validate_input(self):
+    def _set_default_datetime(self):
         if self.reported_at is not None and isinstance(self.reported_at, str):
             self.reported_at = datetime.strptime(self.reported_at, "%b %d, %Y")
 
