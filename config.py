@@ -11,3 +11,7 @@ CELERY_CONFIG = {
     "broker": os.getenv("BROKER"),
     "backend": os.getenv("BACKEND")
 }
+
+FLASK_CONFIG = {
+    "DEBUG": os.getenv("FLASK_DEBUG")
+}
