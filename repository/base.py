@@ -64,3 +64,6 @@ class DailyRepoBase(BaseDB):
         res = self.collection.find({"country": country, "reported_at": {"$gte": from_day}})
         return list(res)
 
+    def get_country_days_ago_projects(self, project, country, from_day):
+        res = self.collection.find({"country": country, "reported_at": {"$gte": from_day}}, project)
+        return list(res)

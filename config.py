@@ -16,3 +16,8 @@ CRAWLER_CONFIG = {
     "MAX_RETRY": int(os.getenv("CRAWLER_MAX_RETRY")),
     "SLEEP_TIME": int(os.getenv("CRAWLER_SLEEP_TIME")),
 }
+
+
+FLASK_CONFIG = {
+    "DEBUG": os.getenv("FLASK_DEBUG")
+}
