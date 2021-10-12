@@ -3,11 +3,11 @@ from celery_app.tasks import crawl_data
 
 
 class CeleryCrawlWorldMeterUseCase:
-    def __init__(self, crawler):
-        self.crawler = crawler()
+    def __init__(self, main_table_crawler):
+        self.main_table_crawler = main_table_crawler()
 
     def execute(self):
-        country_links = self.crawler.get_country_link()
+        country_links = self.main_table_crawler.get_country_link()
         lazy_group = group([crawl_data.s(country, link) for country, link in country_links.items()])
         lazy_group()
         return "Done"

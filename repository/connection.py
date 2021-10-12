@@ -3,6 +3,15 @@ import config
 from pymongo import MongoClient
 
 
-class MongoConnection:
+class Singleton(object):
+    _instance = None
+
+    def __new__(class_, *args, **kwargs):
+        if not isinstance(class_._instance, class_):
+            class_._instance = object.__new__(class_, *args, **kwargs)
+        return class_._instance
+
+
+class MongoConnection(Singleton):
     connection = MongoClient(config.DATABASE_CONFIG['url'])
     db = connection[config.DATABASE_CONFIG['db_name']]
