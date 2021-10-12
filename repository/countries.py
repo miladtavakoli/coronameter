@@ -7,8 +7,8 @@ class CountriesRepository(BaseDB):
         self.collection = self.db['Countries']
 
     def find_one(self, query: dict):
-        res = list(self.collection.find_one(query))
-        return CountryDomain.from_dict(res)
+        res = self.collection.find_one(query, {"country": 1, "population": 1, "updated_at": 1, "_id": 0})
+        return res
 
     def country_list(self, query=None):
         if query is None:
